@@ -6,3 +6,7 @@ edition = "2021"
 [dependencies]
 calceph_sys = { path = "../calceph_sys" }
 thiserror = "1"
+
+[features]
+default = ["threadsafe"]
+threadsafe = []

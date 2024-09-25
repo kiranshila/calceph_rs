@@ -6,6 +6,7 @@ fn main() {
         .define("ENABLE_FORTRAN", "NO")
         .define("CALCEPH_INSTALL", "OFF")
         .define("INSTALL_INCLUDE_DIR", "")
+        .define("ENABLE_THREAD", "ON")
         .define("INSTALL_SYSCONFIG_DIR", "")
         .build();
 

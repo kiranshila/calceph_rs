@@ -61,6 +61,9 @@ impl Drop for CalcephBin {
     }
 }
 
+#[cfg(feature = "threadsafe")]
+unsafe impl Send for CalcephBin {}
+
 #[derive(Debug)]
 /// Values for `target` and `center` of [`CalephBin::compute`]
 pub enum PositionTarget {
@@ -144,11 +147,15 @@ impl CalcephBin {
         // Validate path
         let path = path_cstr(path.as_ref())?;
         let ptr = unsafe { calceph_open(path.as_ptr()) };
+        // Try to construct the handler
         if ptr.is_null() {
-            Err(Error::LowerLevel(get_last_error()))
-        } else {
-            Ok(Self(ptr))
+            return Err(Error::LowerLevel(get_last_error()));
         }
+        // If we want to be threadsafe, try to prefetch
+        let mut this = Self(ptr);
+        #[cfg(feature = "threadsafe")]
+        this.prefetch()?;
+        Ok(this)
     }
 
     pub fn prefetch(&mut self) -> Result<(), Error> {

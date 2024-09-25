@@ -11,3 +11,13 @@ For example, the `calceph_compute_units` function accepts units that are created
 Further, the kind of target and center positions are sometimes not valid for the types requested.
 Here, the functions that capture drastically different behavior and input types are broken out into actually different functions that are correct at compile time.
 We can't change the C code, but at least we know we're correct.
+
+## Thread Safety
+
+According to the [docs](https://calceph.imcce.fr/docs/4.0.0/html/c/calceph.multiple.cusage.html#thread-notes), functions that access `t_calcephbin`
+or `CalcephBin` in Rust, are threadsafe if `calceph_isthreadsafe` returns a non-zero value.
+This is a little strange as there must be a call to `calceph_prefetch` before that.
+So, we end up with runtime-dependent thread-safety - which is against Rust's requirements for `Send`.
+
+So, if you want `CalcephBin` to be `Send`, here we use a feature `threadsafe` that performs these checks in the constructor so you will only get a `CalcephBin` iff the requirements are actually met.
+However, this does require that prefetch call (now included in the constructor), which may be problematic for exceptionally large files.
