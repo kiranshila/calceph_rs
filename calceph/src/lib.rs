@@ -203,6 +203,34 @@ impl CalcephBin {
         }
     }
 
+    pub fn compute_position_units_naif(
+        &mut self,
+        ijd: f64,
+        fdj: f64,
+        target: i32,
+        center: i32,
+        pos_unit: PositionUnit,
+        time_unit: TimeUnit,
+    ) -> Result<[f64; 6], Error> {
+        let mut pv = [0f64; 6];
+        if unsafe {
+            calceph_compute_unit(
+                self.0,
+                ijd,
+                fdj,
+                target.into(),
+                center.into(),
+                i32::from(pos_unit) + i32::from(time_unit) + CALCEPH_USE_NAIFID as i32,
+                pv.as_mut_ptr(),
+            )
+        } == 0
+        {
+            Err(Error::LowerLevel(get_last_error()))
+        } else {
+            Ok(pv)
+        }
+    }
+
     pub fn get_constant(&mut self, name: &str) -> Result<f64, Error> {
         let c_str = CString::new(name).expect("Invalid C-string");
         let mut x = MaybeUninit::uninit();
