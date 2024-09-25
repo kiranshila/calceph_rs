@@ -1,0 +1,3 @@
+[submodule "calceph_sys/vendor"]
+	path = calceph_sys/vendor
+	url = https://gitlab.obspm.fr/imcce_calceph/calceph.git
